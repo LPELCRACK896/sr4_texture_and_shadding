@@ -1,3 +1,4 @@
+from  math import pi, cos, tan, sin, acos
 
 def matriz(matriz: list):
     if not validMatrix(matriz):
@@ -76,3 +77,56 @@ def multMatrixes(*matrices):
         matriz_1 = matriz_resultado
         indice_matriz_2 += 1
     return matriz_resultado
+
+def grades_to_radians(grados):
+        return pi * grados /180
+
+def radians_to_grades(radianes):
+    return 180*radianes / pi
+
+def productoPunto(vector_1, vector_2):
+        if len(vector_1)!=len(vector_2):
+            raise Exception ("No match on vector dimensions")
+        total = 0
+        for componente_i in range(len(vector_1)):
+            total += vector_1[componente_i]*vector_2[componente_i]
+        return total
+
+def magnitud_vector(vector: list):
+    sum = 0
+    for comp in vector:
+        sum += comp**2
+    return sum**0.5
+
+def anguloVectores(vector_1, vector_2):
+    return radians_to_grades( acos( productoPunto(vector_1, vector_2)/(magnitud_vector(vector_1)*magnitud_vector(vector_2)) ) )
+
+def multProductoCruz(*vectores):
+    if len(vectores)<1:
+        raise Exception("No se recibio vectores que multiplicar en el producto cruz")
+    vector_1 = vectores[0]
+    for i in range(len(vectores)):
+        if not i==0:
+            vector_1 = productoCruz(vector_1, vectores[i])
+            if vector_1 == -1:
+                return
+    return vector_1
+
+def productoCruz(vector_1, vector_2):
+    if not (len(vector_1)==len(vector_2) and len(vector_1)==3):
+        print("De momento el producto cruz solo es funcional para vectores de tres dimensiones")
+        return -1
+    cont = 0
+    vector_res = []
+    signo = 1
+    while cont<len(vector_2):
+        matriz_det = []
+        #fila 1
+        matriz_det.append([vector_1[i] for i in range(len(vector_1)) if not i==cont])
+        #fila 2
+        matriz_det.append([vector_2[i] for i in range(len(vector_2)) if not i==cont])
+        vector_res.append(signo*((matriz_det[0][0]*matriz_det[1][1])-(matriz_det[0][1]*matriz_det[1][0])))
+        signo = -signo
+        cont += 1
+    return vector_res
+print(productoCruz([-3, -2, 5],[6, -10, -1]))
