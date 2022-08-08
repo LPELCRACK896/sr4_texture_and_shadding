@@ -36,13 +36,17 @@ def baryCoords(A, B, C, P):
     areaPBC = (B.y - C.y)* (P.x - C.x) + (C.x - B.x)*(P.y-C.y)
     areaPAC = (C.y - A.y)* (P.x - C.x) + (A.x - C.x)*(P.y-C.y)
     areaABC = (B.y - C.y)* (A.x - C.x) + (C.x - B.x)*(A.y-C.y)
-    #PBC/ABC
-    u = areaPBC/areaABC
-    #PAC/ABC
-    v = areaPAC/areaABC
-    #1 -U -W
-    w = 1 - u - v
-    return u, v, w
+    try:
+        #PBC/ABC
+        u = areaPBC/areaABC
+        #PAC/ABC
+        v = areaPAC/areaABC
+        #1 -U -W
+        w = 1 - u - v
+    except:
+        return -1, -1, -1
+    else:
+        return u, v, w
 
 class Renderer(object):
 
@@ -141,11 +145,13 @@ class Renderer(object):
             v2 = self.glTransform(v2, modelMatrix)
 
 
+            triangleColor = NewColor(random.random(),random.random(),random.random())
+            self.glTriangle_bc(v0, v1, v2, triangleColor)
 
-            self.glTriangle_bc(v0, v1, v2, NewColor(random.random(),
-                                                  random.random(),
-                                                  random.random()))
-
+            if vertCount == 4:
+                v3 = model.vertices[ face[3][0]-1 ]
+                v3 = self.glTransform(v3, modelMatrix)
+                self.glTriangle_bc(v0, v2, v3)
             #Wire model
             '''
             for vert in range(len(face)):
@@ -286,8 +292,8 @@ class Renderer(object):
         maxX = round(max(A.x, B.x, C.x))
         maxY = round(max(A.y, B.y, C.y))
         
-        for x in range(minX, maxX+1):
-            for y in range(minY, maxY+1):
+        for x in range(minX, maxX):
+            for y in range(minY, maxY):
                 u, v, w = baryCoords(A, B, C, V2(x, y))
                 if u>=0 and v>=0 and w>=0:
                     z = A.z * u + B.z *v + C.z * w
