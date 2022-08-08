@@ -1,5 +1,7 @@
 from  math import pi, cos, tan, sin, acos
 
+from pkg_resources import VersionConflict
+
 def matriz(matriz: list):
     if not validMatrix(matriz):
         return
@@ -128,4 +130,14 @@ def productoCruz(vector_1, vector_2):
         vector_res.append(signo*((matriz_det[0][0]*matriz_det[1][1])-(matriz_det[0][1]*matriz_det[1][0])))
         signo = -signo
         cont += 1
+    return vector_res
+
+def suma_o_resta_vectores(vector_1: list, vector_2: list, is_resta: bool = False):
+    factor = -1 if is_resta else 1
+    if not len(vector_2)==len(vector_1):
+        print("Dimensiones de vectores no coiniciden")
+        return
+    vector_res = []
+    for i in range(len(vector_1)):
+        vector_res.append(vector_1[i]+factor*vector_2[i])
     return vector_res
