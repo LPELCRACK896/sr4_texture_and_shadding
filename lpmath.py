@@ -129,4 +129,3 @@ def productoCruz(vector_1, vector_2):
         signo = -signo
         cont += 1
     return vector_res
-print(productoCruz([-3, -2, 5],[6, -10, -1]))
