@@ -1,6 +1,7 @@
 from  math import pi, cos, tan, sin, acos
+from collections import namedtuple
 
-from pkg_resources import VersionConflict
+V2 = namedtuple('Point2', ['x', 'y'])
 
 def matriz(matriz: list):
     if not validMatrix(matriz):
@@ -115,9 +116,15 @@ def multProductoCruz(*vectores):
     return vector_1
 
 def productoCruz(vector_1, vector_2):
-    if not (len(vector_1)==len(vector_2) and len(vector_1)==3):
-        print("De momento el producto cruz solo es funcional para vectores de tres dimensiones")
+    if len(vector_1)>3 or len(vector_2)>3:
+        print("Dimensiones de vectores no coinciden")
         return -1
+    
+    while len(vector_1)<3:
+        vector_1.append(0)
+    while len(vector_2)<3:
+        vector_2.append(0)
+    
     cont = 0
     vector_res = []
     signo = 1

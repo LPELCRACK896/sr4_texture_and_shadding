@@ -28,6 +28,22 @@ def NewColor(r, g, b):
         int(r*255)
     ])
 
+def baryCoords(A, B, C, P):
+
+    """ areaPBC = lpm.magnitud_vector(lpm.productoCruz(lpm.suma_o_resta_vectores(B, P, True), lpm.suma_o_resta_vectores(C, P, True)))
+    areaPAC = lpm.magnitud_vector(lpm.productoCruz(lpm.suma_o_resta_vectores(A, P, True), lpm.suma_o_resta_vectores(C, P, True)))
+    areaABC = lpm.magnitud_vector(lpm.productoCruz(lpm.suma_o_resta_vectores(B, A, True), lpm.suma_o_resta_vectores(C, A, True))) """
+    areaPBC = (B.y - C.y)* (P.x - C.x) + (C.x - B.x)*(P.y-C.y)
+    areaPAC = (C.y - A.y)* (P.x - C.x) + (A.x - C.x)*(P.y-C.y)
+    areaABC = (B.y - C.y)* (A.x - C.x) + (C.x - B.x)*(A.y-C.y)
+    #PBC/ABC
+    u = areaPBC/areaABC
+    #PAC/ABC
+    v = areaPAC/areaABC
+    #1 -U -W
+    w = 1 - u - v
+    return u, v, w
+
 class Renderer(object):
 
     def __init__(self, width, height):#Constructor
@@ -56,6 +72,7 @@ class Renderer(object):
         y = (ndcY+1)*(self.vpHeight/2) +self.vPy
 
         self.glCreatePoint(int(x), int(y), clr)
+    
     def grades_to_radians(self, grados):
         return pi * grados /180
     
@@ -125,7 +142,7 @@ class Renderer(object):
 
 
 
-            self.glTriangle_std(v0, v1, v2, NewColor(random.random(),
+            self.glTriangle_bc(v0, v1, v2, NewColor(random.random(),
                                                   random.random(),
                                                   random.random()))
 
@@ -261,9 +278,23 @@ class Renderer(object):
             flatBottom(A,B,D)
             flatTop(B,D,C)     
     
-    def glTriangle_BC(self, A, B, C, clr = None):
-        pass
+    def glTriangle_bc(self, A, B, C, clr = None):
+
+        #Bounding box
+        minX = round(min(A.x, B.x, C.x))
+        minY = round(min(A.y, B.y, C.y))
+        maxX = round(max(A.x, B.x, C.x))
+        maxY = round(max(A.y, B.y, C.y))
         
+        for x in range(minX, maxX+1):
+            for y in range(minY, maxY+1):
+                u, v, w = baryCoords(A, B, C, V2(x, y))
+                if u>=0 and v>=0 and w>=0:
+                    z = A.z * u + B.z *v + C.z * w
+                    if z < self.zbuffer[x][y]:
+                        self.glCreatePoint(x, y, clr)
+                        self.zbuffer[x][y] = z
+    
     def glSecondaryColor(self, r, g, b):
         self.secondary_color  = NewColor(r, g, b)
     
@@ -271,12 +302,13 @@ class Renderer(object):
         if (0<=x<self.width) and (0<=y<self.height):
             self.pixels[x][y] = clr or self.secondary_color
 
-
     def glClearColor(self, r, g, b): #setter del color de fondo
         self.clearColor = NewColor(r, g, b)
     
     def glClear(self):#Crea el fondo
         self.pixels = [[ self.clearColor for i in range(self.height)]
+         for x in range (self.width)]
+        self.zbuffer = [[ float('inf') for i in range(self.height)]
          for x in range (self.width)]
     
     def glFinish(self, filename):
