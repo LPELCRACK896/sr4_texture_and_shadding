@@ -260,6 +260,9 @@ class Renderer(object):
             D = V2( A.x + ((B.y - A.y) / (C.y - A.y)) * (C.x - A.x), B.y)
             flatBottom(A,B,D)
             flatTop(B,D,C)     
+    
+    def glTriangle_BC(self, A, B, C, clr = None):
+        pass
         
     def glSecondaryColor(self, r, g, b):
         self.secondary_color  = NewColor(r, g, b)
