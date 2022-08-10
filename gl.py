@@ -1,4 +1,3 @@
-from re import L
 import struct 
 from collections import namedtuple
 from obj import Obj
@@ -56,6 +55,9 @@ class Renderer(object):
         self.secondary_color = NewColor(1, 1, 1)
 
         self.glViewPort(0, 0, self.width, self.height)
+
+        self.active_shader = None
+        self.dirLight = V3(1, 0, 0) 
 
         self.clearColor = NewColor(0,0,0)
 
@@ -292,14 +294,21 @@ class Renderer(object):
         maxX = round(max(A.x, B.x, C.x))
         maxY = round(max(A.y, B.y, C.y))
         
+        triangleNormal = lpm.normalizaVector(lpm.productoCruz(lpm.suma_o_resta_vectores(B, A, True), lpm.suma_o_resta_vectores(C, A, True)))
         for x in range(minX, maxX):
             for y in range(minY, maxY):
                 u, v, w = baryCoords(A, B, C, V2(x, y))
                 if u>=0 and v>=0 and w>=0:
                     z = A.z * u + B.z *v + C.z * w
                     if z < self.zbuffer[x][y]:
-                        self.glCreatePoint(x, y, clr)
                         self.zbuffer[x][y] = z
+                        if self.active_shader:
+                            r, g, b = self.active_shader(self, baryCoords=(u, v, w), vColor = clr or self.secondary_color, triangleNormal = triangleNormal)
+                            self.glCreatePoint(x, y, NewColor(r, g, b))
+                        else:     
+                            self.glCreatePoint(x, y, clr)
+                        
+                        
     
     def glSecondaryColor(self, r, g, b):
         self.secondary_color  = NewColor(r, g, b)

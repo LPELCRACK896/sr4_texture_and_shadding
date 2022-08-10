@@ -87,6 +87,9 @@ def grades_to_radians(grados):
 def radians_to_grades(radianes):
     return 180*radianes / pi
 
+def normalizaVector(vector: list):
+    return [a/magnitud_vector(vector) for a in vector]
+
 def productoPunto(vector_1, vector_2):
         if len(vector_1)!=len(vector_2):
             raise Exception ("No match on vector dimensions")
